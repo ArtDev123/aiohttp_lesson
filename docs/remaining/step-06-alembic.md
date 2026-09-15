@@ -1,121 +1,75 @@
-# Шаг 6 — Alembic: миграции схемы
+# Шаг 6 — Alembic: `init` и autogenerate
 
 **Предыдущий:** [step-05-models.md](step-05-models.md) · **Следующий:** [step-07-routes.md](step-07-routes.md)
 
 ## Задача
 
-Создать таблицы `genres`, `authors`, `books` в PostgreSQL через Alembic — не через `create_all()` в рантайме.
+Инициализировать Alembic командой, поправить `env.py` под наши модели и `.env`, затем **сгенерировать** первую миграцию и применить её. Файлы `alembic.ini` / `env.py` / ревизии руками не пишем.
 
 ---
 
-## Теория: зачем Alembic, а не `create_all`
+## Теория: три команды
 
-| Способ | Когда ок | Минус |
-|--------|----------|--------|
-| `Base.metadata.create_all` | прототип на один вечер | не умеет *менять* уже существующие таблицы |
-| **Alembic** | любой живой проект | нужен `env.py` + файлы ревизий |
-
-Приложение ходит в БД через **asyncpg**. Alembic проще крутить **синхронно** (`postgresql://` + `psycopg2`) — тот же хост/имя БД, другой драйвер. URL берём из `settings.database_url_sync`.
+| Команда | Что делает | Когда |
+|---------|------------|--------|
+| `alembic init alembic` | каркас: `alembic.ini`, `alembic/env.py`, пустой `versions/` | один раз |
+| `revision --autogenerate` | сравнивает `Base.metadata` с БД, пишет Python-ревизию | после изменения моделей |
+| `upgrade head` | выполняет `upgrade()` у ещё не применённых ревизий | чтобы схема в Postgres догнала код |
 
 ```text
-models.py (Base.metadata)
+make alembic-init
         │
         ▼
-alembic/env.py  →  target_metadata = Base.metadata
+env.py: target_metadata = Base.metadata
+        + URL из settings
         │
         ▼
-alembic/versions/0001_initial.py  →  CREATE TABLE ...
+make migrations m="initial tables"   # autogenerate
         │
         ▼
-alembic upgrade head  →  PostgreSQL
+смотрите alembic/versions/*.py
+        │
+        ▼
+make migrate                         # upgrade head
 ```
+
+`create_all()` в рантайме для живого проекта не подходит: не умеет *менять* уже существующие таблицы. Autogenerate тоже не магия — **всегда читайте** сгенерированный файл (rename колонки, типы Enum он часто не видит).
+
+Приложение ходит в БД через **asyncpg**. Alembic проще крутить **синхронно** (`postgresql://` + `psycopg2`) — URL из `settings.database_url_sync`.
 
 ---
 
-## 1. `alembic.ini`
+## 1. Каркас — один раз
 
-В корне проекта:
+Из корня репозитория, venv активен:
 
-```ini
-[alembic]
-script_location = alembic
-prepend_sys_path = .
-sqlalchemy.url = postgresql://library_user:library_pass@localhost:5432/library_db
-
-[loggers]
-keys = root,sqlalchemy,alembic
-
-[handlers]
-keys = console
-
-[formatters]
-keys = generic
-
-[logger_root]
-level = WARN
-handlers = console
-qualname =
-
-[logger_sqlalchemy]
-level = WARN
-handlers =
-qualname = sqlalchemy.engine
-
-[logger_alembic]
-level = INFO
-handlers =
-qualname = alembic
-
-[handler_console]
-class = StreamHandler
-args = (sys.stderr,)
-level = NOTSET
-formatter = generic
-
-[formatter_generic]
-format = %(levelname)-5.5s [%(name)s] %(message)s
-datefmt = %H:%M:%S
+```bash
+make alembic-init
+# то же самое: alembic init alembic
 ```
 
-`sqlalchemy.url` в ini — запасной. Реальный URL подставим в `env.py` из `.env`.
+Появятся `alembic.ini` и каталог `alembic/` (`env.py`, `script.py.mako`, `versions/`). Если папка уже есть — команда упадёт: не запускайте init повторно.
+
+Windows:
+
+```powershell
+.\.venv\Scripts\alembic init alembic
+```
+
+В свежем `alembic.ini` уже есть `prepend_sys_path = .` — корень проекта в `sys.path`, `from app.models import Base` сработает. `sqlalchemy.url` в ini можно не трогать: URL подставим в `env.py`.
 
 ---
 
-## 2. `alembic/script.py.mako`
+## 2. Подключить модели и `.env` в `alembic/env.py`
 
-Шаблон новых ревизий (`alembic revision`):
+После `init` в файле примерно так:
 
-```mako
-"""${message}
-
-Revision ID: ${up_revision}
-Revises: ${down_revision | comma,n}
-Create Date: ${create_date}
-
-"""
-from typing import Sequence, Union
-
-from alembic import op
-import sqlalchemy as sa
-${imports if imports else ""}
-
-revision: str = ${repr(up_revision)}
-down_revision: Union[str, Sequence[str], None] = ${repr(down_revision)}
-branch_labels: Union[str, Sequence[str], None] = ${repr(branch_labels)}
-depends_on: Union[str, Sequence[str], None] = ${repr(depends_on)}
-
-
-def upgrade() -> None:
-    ${upgrades if upgrades else "pass"}
-
-
-def downgrade() -> None:
-    ${downgrades if downgrades else "pass"}
+```python
+# target_metadata = mymodel.Base.metadata
+target_metadata = None
 ```
 
----
-
-## 3. `alembic/env.py`
+Замените верх файла (импорты + metadata + URL) на:
 
 ```python
 from logging.config import fileConfig
@@ -133,107 +87,42 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
-
-
-def run_migrations_offline() -> None:
-    url = config.get_main_option("sqlalchemy.url")
-    context.configure(
-        url=url,
-        target_metadata=target_metadata,
-        literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
-    )
-    with context.begin_transaction():
-        context.run_migrations()
-
-
-def run_migrations_online() -> None:
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
-    with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
-        with context.begin_transaction():
-            context.run_migrations()
-
-
-if context.is_offline_mode():
-    run_migrations_offline()
-else:
-    run_migrations_online()
 ```
 
-`prepend_sys_path = .` в ini добавляет корень проекта в `sys.path`, поэтому `from app.models import Base` работает.
+Функции `run_migrations_offline` / `run_migrations_online` **оставьте как сгенерировал init** — они уже используют `target_metadata` и `sqlalchemy.url`.
+
+Если autogenerate выдаст пустую ревизию (`pass` в `upgrade`) — `target_metadata` всё ещё `None` или модели не импортированы.
 
 ---
 
-## 4. Первая ревизия — `alembic/versions/0001_initial.py`
-
-Пишем руками (без `alembic revision --autogenerate`), чтобы видеть SQL:
-
-```python
-"""initial tables: genres, authors, books
-
-Revision ID: 0001
-Revises:
-Create Date: 2026-09-15
-
-"""
-from typing import Sequence, Union
-
-import sqlalchemy as sa
-from alembic import op
-
-revision: str = "0001"
-down_revision: Union[str, Sequence[str], None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
-
-
-def upgrade() -> None:
-    op.create_table(
-        "genres",
-        sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("name", sa.String(length=100), nullable=False),
-        sa.UniqueConstraint("name"),
-    )
-    op.create_table(
-        "authors",
-        sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("name", sa.String(length=200), nullable=False),
-        sa.Column("bio", sa.Text(), nullable=True),
-    )
-    op.create_table(
-        "books",
-        sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("title", sa.String(length=300), nullable=False),
-        sa.Column("year", sa.Integer(), nullable=True),
-        sa.Column("author_id", sa.Integer(), nullable=False),
-        sa.Column("genre_id", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(["author_id"], ["authors.id"]),
-        sa.ForeignKeyConstraint(["genre_id"], ["genres.id"]),
-    )
-
-
-def downgrade() -> None:
-    op.drop_table("books")
-    op.drop_table("authors")
-    op.drop_table("genres")
-```
-
-`books` создаём последней: FK ссылаются на уже существующие таблицы.
-
----
-
-## 5. Применить миграцию
+## 3. Сгенерировать и применить
 
 ```bash
-source .venv/bin/activate
-alembic upgrade head
-# или: make migrate
+make migrations m="initial tables"
+# откройте alembic/versions/0001_*.py — должны быть create_table genres/authors/books
+make migrate
 ```
+
+Цели из Makefile шага 1:
+
+- `migrations` → `alembic revision --autogenerate -m "..." --rev-id 0001`
+- `migrate` → `alembic upgrade head`
+
+Следующая ревизия получит `0002`, если не передать `id=`:
+
+```bash
+make migrations m="add book isbn"
+make migrations m="add book isbn" id=0005
+```
+
+Windows:
+
+```powershell
+.\.venv\Scripts\alembic revision --autogenerate -m "initial tables"
+.\.venv\Scripts\alembic upgrade head
+```
+
+Дальше тот же цикл: поменяли `models.py` → `make migrations m="..."` → глянули файл → `make migrate`.
 
 ---
 
@@ -246,8 +135,11 @@ psql -h localhost -U library_user -d library_db -c "\dt"
 
 | ☐ | Действие | Ожидаемый результат |
 |---|----------|---------------------|
-| ☐ | `alembic upgrade head` | `Running upgrade -> 0001` |
-| ☐ | `alembic current` | `0001` |
+| ☐ | `make alembic-init` | есть `alembic.ini` и `alembic/env.py` |
+| ☐ | В `env.py` `target_metadata = Base.metadata` | да |
+| ☐ | `make migrations m="initial tables"` | файл в `alembic/versions/` с `create_table` |
+| ☐ | `make migrate` | `Running upgrade -> 0001` (id может чуть отличаться) |
+| ☐ | `alembic current` | ревизия не `None` |
 | ☐ | `\dt` | `authors`, `books`, `genres` (+ `alembic_version`) |
 
 **Все пункты отмечены?** → [step-07-routes.md](step-07-routes.md)

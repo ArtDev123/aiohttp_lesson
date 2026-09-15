@@ -14,7 +14,7 @@
 | 3 | [step-03-pydantic.md](step-03-pydantic.md) | Настройки и мини-гайд | **BaseModel, Field, BaseSettings** |
 | 4 | [step-04-app.md](step-04-app.md) | Первый endpoint сервера | Application, handler, startup |
 | 5 | [step-05-models.md](step-05-models.md) | Три модели | SQLAlchemy 2 mapped_column |
-| 6 | [step-06-alembic.md](step-06-alembic.md) | Миграции | Alembic + sync URL |
+| 6 | [step-06-alembic.md](step-06-alembic.md) | Миграции | `alembic init` + autogenerate |
 | 7 | [step-07-routes.md](step-07-routes.md) | CRUD API | handler + AsyncSession + Pydantic |
 | 8 | [step-08-swagger.md](step-08-swagger.md) | Документация API | aiohttp-swagger3 |
 | 9 | [step-09-final.md](step-09-final.md) | Сиды, чеклист | карта API |

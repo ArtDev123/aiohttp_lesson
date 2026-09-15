@@ -105,7 +105,7 @@ python -m app.seed
 
 ```bash
 source .venv/bin/activate
-alembic upgrade head
+make migrate
 python -m app.seed
 python -m app.main
 ```
@@ -136,7 +136,7 @@ python -m task_1_client.main
 | ☐ | PostgreSQL, учётка из `scripts/init_postgres.sql` |
 | ☐ | `Settings` из pydantic-settings, не `os.getenv` |
 | ☐ | Три модели SQLAlchemy + схемы Pydantic |
-| ☐ | Alembic `upgrade head` |
+| ☐ | Alembic: `make migrations` + `make migrate` |
 | ☐ | GET/POST `/genres`, `/authors`, `/books` |
 | ☐ | Пустой `name` на POST → `422` |
 | ☐ | Swagger UI: [http://127.0.0.1:8080/docs](http://127.0.0.1:8080/docs) |
@@ -161,6 +161,7 @@ curl -s http://127.0.0.1:8080/books | python -m json.tool
 | POST пустого `name` даёт 500 | `parse_body` / `GenreCreate` не подключены |
 | Swagger пустой / 404 на методах | роуты через `swagger.add_routes`, не `app.router.add_get` |
 | Книга без имени автора в JSON | забыли `selectinload(Book.author)` |
-| `alembic: No module named app` | запускаете не из корня репозитория |
+| `alembic: No module named app` | запускаете не из корня; в ini должен быть `prepend_sys_path = .` |
+| autogenerate с пустым `upgrade()` | в `env.py` не задан `target_metadata = Base.metadata` |
 
 Карта проекта: [guide.md](../guide.md)

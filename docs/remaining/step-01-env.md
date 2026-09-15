@@ -196,8 +196,9 @@ __pycache__/
 PYTHON ?= python3
 VENV := .venv
 BIN := $(VENV)/bin
+NEXT_REV_ID = $(shell $(PYTHON) -c "import pathlib; p=pathlib.Path('alembic/versions'); ids=[int(f.name.split('_')[0]) for f in p.glob('*.py') if f.name[:1].isdigit()] if p.exists() else []; print(f'{(max(ids)+1) if ids else 1:04d}')")
 
-.PHONY: venv install migrate seed run client
+.PHONY: venv install alembic-init migrations migrate seed run client
 
 venv:
 	$(PYTHON) -m venv $(VENV)
@@ -205,6 +206,13 @@ venv:
 	$(BIN)/pip install -r requirements.txt
 
 install: venv
+
+alembic-init:
+	$(BIN)/alembic init alembic
+
+migrations:
+	@test -n "$(m)" || (echo 'Usage: make migrations m="short description"' && exit 1)
+	$(BIN)/alembic revision --autogenerate -m "$(m)" --rev-id "$(or $(id),$(NEXT_REV_ID))"
 
 migrate:
 	$(BIN)/alembic upgrade head
@@ -219,12 +227,21 @@ client:
 	$(BIN)/python -m task_1_client.main
 ```
 
+`alembic-init` — один раз на шаге 6. `migrations` сравнивает модели с БД и пишет файл ревизии. `migrate` применяет его.
+
+```bash
+make migrations m="initial tables"
+make migrate
+```
+
 Windows без make:
 
 ```powershell
+.\.venv\Scripts\alembic init alembic
+.\.venv\Scripts\alembic revision --autogenerate -m "initial tables"
+.\.venv\Scripts\alembic upgrade head
 .\.venv\Scripts\python -m app.main
 .\.venv\Scripts\python -m task_1_client.main
-.\.venv\Scripts\alembic upgrade head
 ```
 
 ---
@@ -232,16 +249,18 @@ Windows без make:
 ## 7. Пустые пакеты
 
 ```bash
-mkdir -p app/routes task_1_client alembic/versions
+mkdir -p app/routes task_1_client
 touch app/__init__.py app/routes/__init__.py task_1_client/__init__.py
 ```
 
 Windows (PowerShell):
 
 ```powershell
-New-Item -ItemType Directory -Force -Path app\routes, task_1_client, alembic\versions | Out-Null
+New-Item -ItemType Directory -Force -Path app\routes, task_1_client | Out-Null
 New-Item -ItemType File -Force -Path app\__init__.py, app\routes\__init__.py, task_1_client\__init__.py | Out-Null
 ```
+
+Папку `alembic/` **не** создаём руками — её сделает `make alembic-init` на шаге 6.
 
 Структура сейчас:
 
@@ -254,7 +273,6 @@ aiohttp_lesson/
 ├── requirements.txt
 ├── app/
 ├── task_1_client/
-├── alembic/versions/
 ├── scripts/
 └── docs/
 ```

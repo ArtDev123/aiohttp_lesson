@@ -100,13 +100,13 @@ aiohttp_lesson/
 ├── .env                      # секреты (не в git)
 ├── .env.example
 ├── .gitignore
-├── Makefile
+├── Makefile                  # alembic-init, migrations, migrate
 ├── requirements.txt
-├── alembic.ini
+├── alembic.ini               # появляется после make alembic-init
 ├── alembic/
-│   ├── env.py
+│   ├── env.py                # Base.metadata + settings URL
 │   ├── script.py.mako
-│   └── versions/0001_initial.py
+│   └── versions/             # файлы из make migrations
 ├── app/
 │   ├── main.py               # create_app + swagger
 │   ├── config.py             # Settings (pydantic-settings)
@@ -143,7 +143,7 @@ aiohttp_lesson/
 | 3 | [step-03-pydantic.md](remaining/step-03-pydantic.md) | Pydantic + `Settings` |
 | 4 | [step-04-app.md](remaining/step-04-app.md) | `web.Application`, `/health` |
 | 5 | [step-05-models.md](remaining/step-05-models.md) | Genre, Author, Book |
-| 6 | [step-06-alembic.md](remaining/step-06-alembic.md) | миграции схемы |
+| 6 | [step-06-alembic.md](remaining/step-06-alembic.md) | `alembic init` + autogenerate |
 | 7 | [step-07-routes.md](remaining/step-07-routes.md) | CRUD + Pydantic-схемы |
 | 8 | [step-08-swagger.md](remaining/step-08-swagger.md) | Swagger UI |
 | 9 | [step-09-final.md](remaining/step-09-final.md) | сиды и финальный прогон |

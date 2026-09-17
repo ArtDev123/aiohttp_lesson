@@ -1,5 +1,4 @@
-from aiohttp import web
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.models import Book
 
@@ -19,6 +18,10 @@ class GenreRead(BaseModel):
     name: str
 
 
+class GenreUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+
+
 class AuthorCreate(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     bio: str | None = None
@@ -32,11 +35,23 @@ class AuthorRead(BaseModel):
     bio: str | None
 
 
+class AuthorUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    bio: str | None = None
+
+
 class BookCreate(BaseModel):
     title: str = Field(min_length=1, max_length=300)
     year: int | None = Field(default=None, ge=1, le=2100)
     author_id: int = Field(ge=1)
     genre_id: int = Field(ge=1)
+
+
+class BookUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=300)
+    year: int | None = Field(default=None, ge=1, le=2100)
+    author_id: int | None = Field(default=None, ge=1)
+    genre_id: int | None = Field(default=None, ge=1)
 
 
 class BookRead(BaseModel):
@@ -59,13 +74,3 @@ class BookRead(BaseModel):
             author=book.author.name,
             genre=book.genre.name,
         )
-
-
-def parse_body(model_cls, data: dict):
-    try:
-        return model_cls.model_validate(data)
-    except ValidationError as exc:
-        raise web.HTTPUnprocessableEntity(
-            text=exc.json(),
-            content_type="application/json",
-        ) from exc

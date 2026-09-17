@@ -6,18 +6,17 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.config import settings
-from app.db import SessionDep, make_engine, make_session_factory
+from app.db import make_engine, make_session_factory
 from app.errors import NotFoundError
+from app.routes import register_routes
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
-    print("before yield")
     engine = make_engine()
     app.state.engine = engine
     app.state.session_factory = make_session_factory(engine)
     yield
-    print("after yield")
     await engine.dispose()
 
 
@@ -35,11 +34,7 @@ def create_app() -> FastAPI:
     ) -> JSONResponse:
         return JSONResponse(status_code=404, content={"error": exc.message})
 
-    @app.get("/health")
-    async def health(session: SessionDep) -> dict[str, str]:
-        print(session)
-        return {"status": "ok"}
-
+    register_routes(app)
     return app
 
 

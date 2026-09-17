@@ -1,96 +1,49 @@
-from aiohttp import web
-from sqlalchemy import select
+from fastapi import APIRouter, status
 
-from app.models import Author
-from app.schemas import AuthorCreate, AuthorRead, ErrorRead, parse_body
+from app.deps import AuthorRepoDep
+from app.errors import NotFoundError
+from app.schemas import AuthorCreate, AuthorRead, AuthorUpdate, ErrorRead
 
-
-async def list_authors(request: web.Request) -> web.Response:
-    """
-    ---
-    summary: Список авторов
-    tags:
-      - authors
-    responses:
-      "200":
-        description: Все авторы
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/Author"
-    """
-    async with request.app["session_factory"]() as session:
-        result = await session.execute(select(Author).order_by(Author.id))
-        authors = result.scalars().all()
-        return web.json_response([AuthorRead.model_validate(author).model_dump() for author in authors])
+router = APIRouter(prefix="/authors", tags=["authors"])
 
 
-async def get_author(request: web.Request, author_id: int) -> web.Response:
-    """
-    ---
-    summary: Автор по id
-    tags:
-      - authors
-    parameters:
-      - name: author_id
-        in: path
-        required: true
-        schema:
-          type: integer
-    responses:
-      "200":
-        description: Найден
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Author"
-      "404":
-        description: Нет такого автора
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Error"
-    """
-    async with request.app["session_factory"]() as session:
-        author = await session.get(Author, author_id)
-        if author is None:
-            return web.json_response(ErrorRead(error="Автор не найден").model_dump(), status=404)
-        return web.json_response(AuthorRead.model_validate(author).model_dump())
+@router.get("", response_model=list[AuthorRead])
+async def list_authors(repo: AuthorRepoDep) -> list[AuthorRead]:
+    authors = await repo.get_all()
+    return [AuthorRead.model_validate(author) for author in authors]
 
 
-async def create_author(request: web.Request, body: dict) -> web.Response:
-    """
-    ---
-    summary: Добавить автора
-    tags:
-      - authors
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            required:
-              - name
-            properties:
-              name:
-                type: string
-              bio:
-                type: string
-    responses:
-      "201":
-        description: Создан
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Author"
-    """
-    payload = parse_body(AuthorCreate, body)
-    async with request.app["session_factory"]() as session:
-        author = Author(name=payload.name, bio=payload.bio)
-        session.add(author)
-        await session.commit()
-        await session.refresh(author)
-        return web.json_response(AuthorRead.model_validate(author).model_dump(), status=201)
+@router.get(
+    "/{author_id}",
+    response_model=AuthorRead,
+    responses={404: {"model": ErrorRead}},
+)
+async def get_author(author_id: int, repo: AuthorRepoDep) -> AuthorRead:
+    author = await repo.get(author_id)
+    if author is None:
+        raise NotFoundError("Автор не найден")
+    return AuthorRead.model_validate(author)
+
+
+@router.post(
+    "",
+    response_model=AuthorRead,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_author(payload: AuthorCreate, repo: AuthorRepoDep) -> AuthorRead:
+    author = await repo.add(**payload.model_dump())
+    return AuthorRead.model_validate(author)
+
+
+@router.patch(
+    "/{author_id}",
+    response_model=AuthorRead,
+    responses={404: {"model": ErrorRead}},
+)
+async def patch_author(
+    author_id: int, payload: AuthorUpdate, repo: AuthorRepoDep
+) -> AuthorRead:
+    author = await repo.update(author_id, **payload.model_dump(exclude_unset=True))
+    if author is None:
+        raise NotFoundError("Автор не найден")
+    return AuthorRead.model_validate(author)

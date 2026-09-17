@@ -165,3 +165,5 @@ curl -s http://127.0.0.1:8080/books | python -m json.tool
 | autogenerate с пустым `upgrade()` | в `env.py` не задан `target_metadata = Base.metadata` |
 
 Карта проекта: [guide.md](../guide.md)
+
+Дальше то же API на FastAPI (DI, затем репозитории): [../fastapi/README.md](../fastapi/README.md).

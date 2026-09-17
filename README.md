@@ -6,6 +6,8 @@
 
 **Начните здесь:** [docs/README.md](docs/README.md)
 
+После сборки aiohttp-сервера — переписывание на FastAPI: [docs/fastapi/README.md](docs/fastapi/README.md).
+
 ```bash
 # Linux
 ./scripts/init_postgres.sh

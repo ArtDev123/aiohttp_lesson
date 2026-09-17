@@ -149,3 +149,11 @@ aiohttp_lesson/
 | 9 | [step-09-final.md](remaining/step-09-final.md) | сиды и финальный прогон |
 
 **Начните здесь:** [remaining/README.md](remaining/README.md)
+
+---
+
+## 7. Дальше — FastAPI
+
+Когда шаги 1–9 закрыты, то же API можно перенести на FastAPI: dependency injection вместо `request.app["session_factory"]`, затем слой репозиториев.
+
+Карта и шаги: [fastapi/guide.md](fastapi/guide.md).

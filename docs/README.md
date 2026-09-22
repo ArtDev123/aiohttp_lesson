@@ -9,6 +9,7 @@
 1. Сначала [guide.md](guide.md) — что строим, модели, карта API.
 2. Затем строго по порядку [remaining/](remaining/README.md) — не переходите дальше, пока не отметили «✅ Готово».
 3. Когда aiohttp-сервер готов — [fastapi/](fastapi/README.md): переписать на FastAPI и вынести репозитории.
+4. Когда API работает — [docker/](docker/README.md): Docker Desktop, контейнеры, Compose.
 
 Каждый технический блок устроен одинаково:
 
@@ -42,3 +43,5 @@ cd aiohttp_lesson
 **Пошаговая сборка:** [remaining/README.md](remaining/README.md)
 
 Когда aiohttp-приложение собрано и работает, его можно переписать на FastAPI (сначала как есть, потом слой репозиториев): [fastapi/README.md](fastapi/README.md).
+
+Когда API поднимается локально — упаковать его вместе с PostgreSQL в Docker: [docker/README.md](docker/README.md).

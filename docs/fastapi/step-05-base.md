@@ -1,6 +1,6 @@
 # Шаг 5 — Базовый класс репозитория
 
-**Предыдущий:** [step-04-repos.md](step-04-repos.md) · **Следующий:** [step-06-final.md](step-06-final.md)
+**Предыдущий:** [step-04-repos.md](step-04-repos.md) · **Следующий:** [step-06-filters.md](step-06-filters.md)
 
 ## Задача
 
@@ -189,4 +189,4 @@ python -c "from app.repositories import GenreRepository, AuthorRepository, BookR
 | ☐ | Роуты | не изменились |
 | ☐ | В `base.py` нет FastAPI и нет `selectinload` | — |
 
-**Все пункты отмечены?** → [step-06-final.md](step-06-final.md)
+**Все пункты отмечены?** → [step-06-filters.md](step-06-filters.md)

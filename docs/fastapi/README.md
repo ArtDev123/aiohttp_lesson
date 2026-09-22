@@ -22,7 +22,8 @@
 | Фаза | Шаги | Что делаете |
 |------|------|-------------|
 | 1. Как есть | 1–3 | aiohttp-хендлеры → FastAPI-роуты, сессию берём через `Depends`, плюс PATCH |
-| 2. Репозитории | 4–6 | SQL в репозитории → общий `BaseRepository`, роуты остаются тонкими |
+| 2. Репозитории | 4–5 | SQL в репозитории → общий `BaseRepository`, роуты остаются тонкими |
+| 3. Фильтры | 6 | query на `GET /books` через `BookFilters` + `Depends()` |
 
 ## Порядок шагов
 
@@ -34,9 +35,10 @@
 | 3 | [step-03-routes.md](step-03-routes.md) | CRUD «как есть» + PATCH | **APIRouter, body как Pydantic** |
 | 4 | [step-04-repos.md](step-04-repos.md) | слой репозиториев | вложенный `Depends`, кэш на запрос |
 | 5 | [step-05-base.md](step-05-base.md) | `BaseRepository` | Generic, классовый `model` |
-| 6 | [step-06-final.md](step-06-final.md) | чеклист | aiohttp vs FastAPI |
+| 6 | [step-06-filters.md](step-06-filters.md) | query-фильтры `GET /books` | **Query, BookFilters, Depends()** |
+| 7 | [step-07-final.md](step-07-final.md) | чеклист | aiohttp vs FastAPI |
 
-> **Правило:** не пишите код «вперёд гайда». Сначала каркас и DI сессии, потом те же CRUD, потом репозитории, потом база.
+> **Правило:** не пишите код «вперёд гайда». Сначала каркас и DI сессии, потом те же CRUD, потом репозитории, потом база, потом фильтры.
 
 ## Стек после переписывания
 
@@ -52,3 +54,5 @@
 | aiohttp | только клиент (`task_1_client`) |
 
 **Старт:** [step-01-setup.md](step-01-setup.md)
+
+Когда чеклист FastAPI закрыт — то же API в контейнерах: [../docker/README.md](../docker/README.md).

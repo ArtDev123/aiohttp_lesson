@@ -54,4 +54,4 @@ curl -s http://127.0.0.1:8080/books | python -m json.tool
 
 **Старт:** [step-01-env.md](step-01-env.md)
 
-Когда чеклист шага 9 закрыт — продолжение на FastAPI: [../fastapi/README.md](../fastapi/README.md).
+Когда чеклист шага 9 закрыт — продолжение на FastAPI: [../fastapi/README.md](../fastapi/README.md). Затем Docker: [../docker/README.md](../docker/README.md).

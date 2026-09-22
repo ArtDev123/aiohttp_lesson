@@ -128,6 +128,9 @@ aiohttp_lesson/
 │   ├── init_postgres_mac.sh      # macOS
 │   ├── init_postgres.ps1         # Windows
 │   └── init_postgres.bat
+├── Dockerfile                # появляется в гайде Docker
+├── docker-compose.yml
+├── docker-entrypoint.sh
 └── docs/                     # этот гайд
 ```
 
@@ -157,3 +160,11 @@ aiohttp_lesson/
 Когда шаги 1–9 закрыты, то же API можно перенести на FastAPI: dependency injection вместо `request.app["session_factory"]`, затем слой репозиториев.
 
 Карта и шаги: [fastapi/guide.md](fastapi/guide.md).
+
+---
+
+## 8. Дальше — Docker
+
+Когда API поднимается через `python -m app.main`, его вместе с PostgreSQL можно обернуть в контейнеры: не нужен ни локальный venv, ни Postgres на хосте.
+
+Карта и шаги: [docker/README.md](docker/README.md).

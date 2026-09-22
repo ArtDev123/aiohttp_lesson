@@ -8,6 +8,8 @@
 
 После сборки aiohttp-сервера — переписывание на FastAPI: [docs/fastapi/README.md](docs/fastapi/README.md).
 
+Когда API работает — Docker (Desktop, контейнеры, Compose): [docs/docker/README.md](docs/docker/README.md).
+
 ```bash
 # Linux
 ./scripts/init_postgres.sh

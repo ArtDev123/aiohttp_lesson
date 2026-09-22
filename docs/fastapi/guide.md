@@ -2,7 +2,7 @@
 
 Пошаговая реализация — в [README.md](README.md). Этот файл — **карта переписывания**: что оставляем, чем FastAPI отличается от aiohttp, куда смотрит DI.
 
-> **Правило:** не пишите код «вперёд гайда». Фаза 1 — то же API на FastAPI плюс PATCH. Фаза 2 — слой репозиториев, затем общий базовый класс. Не смешивайте.
+> **Правило:** не пишите код «вперёд гайда». Фаза 1 — то же API на FastAPI плюс PATCH. Фаза 2 — слой репозиториев, затем общий базовый класс. Фаза 3 — query-фильтры книг. Не смешивайте.
 
 ---
 
@@ -69,7 +69,7 @@ APIRouter  →  endpoint(repo: GenreRepoDep, payload: GenreCreate)
 | `task_1_client/` | отдельная задача на `ClientSession` |
 | `.env` | хост/порт/Postgres те же |
 
-Карта API **та же плюс PATCH**: `/health`, `/genres`, `/authors`, `/books`. Порт по-прежнему `8080`.
+Карта API **та же плюс PATCH** и query на списке книг: `/health`, `/genres`, `/authors`, `/books`. Порт по-прежнему `8080`.
 
 ---
 
@@ -102,7 +102,7 @@ APIRouter  →  endpoint(repo: GenreRepoDep, payload: GenreCreate)
 | GET | `/authors/{author_id}` | автор по id |
 | POST | `/authors` | создать автора |
 | PATCH | `/authors/{author_id}` | частично обновить автора |
-| GET | `/books` | список книг |
+| GET | `/books` | список книг (`?title`, `?year`, `?author_id`, `?genre_id`) |
 | GET | `/books/{book_id}` | книга по id |
 | POST | `/books` | создать книгу |
 | PATCH | `/books/{book_id}` | частично обновить книгу |
@@ -126,7 +126,7 @@ aiohttp_lesson/
 │   ├── db.py                 # + get_session, SessionDep
 │   ├── errors.py             # NotFoundError
 │   ├── models.py             # без изменений
-│   ├── schemas.py            # Create / Read / Update, без parse_body
+│   ├── schemas.py            # Create / Read / Update + BookFilters
 │   ├── seed.py               # без изменений
 │   ├── deps.py               # фаза 2: Depends на репозитории
 │   ├── routes/
@@ -141,9 +141,13 @@ aiohttp_lesson/
 │       ├── authors.py
 │       └── books.py
 ├── task_1_client/            # aiohttp-клиент, как было
+├── Dockerfile                # гайд Docker, после FastAPI
+├── docker-compose.yml
+├── docker-entrypoint.sh
 └── docs/
     ├── remaining/            # первый гайд (aiohttp)
-    └── fastapi/              # этот гайд
+    ├── fastapi/              # этот гайд
+    └── docker/               # контейнеры
 ```
 
 На фазе 1 папки `repositories/` ещё нет — не создавайте её заранее. `base.py` появляется только на шаге 5.
@@ -159,6 +163,9 @@ aiohttp_lesson/
 | 3 | [step-03-routes.md](step-03-routes.md) | CRUD + PATCH, SQL ещё в роутах |
 | 4 | [step-04-repos.md](step-04-repos.md) | репозитории (`get_all` / `get` / `add` / `update`) |
 | 5 | [step-05-base.md](step-05-base.md) | общий `BaseRepository` |
-| 6 | [step-06-final.md](step-06-final.md) | чеклист и сравнение |
+| 6 | [step-06-filters.md](step-06-filters.md) | query-фильтры `GET /books` |
+| 7 | [step-07-final.md](step-07-final.md) | чеклист и сравнение |
 
 **Начните здесь:** [README.md](README.md)
+
+Когда FastAPI-чеклист закрыт — контейнеры: [../docker/README.md](../docker/README.md).

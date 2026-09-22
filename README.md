@@ -10,6 +10,8 @@
 
 Когда API работает — Docker (Desktop, контейнеры, Compose): [docs/docker/README.md](docs/docker/README.md).
 
+После Docker — фоновый экспорт на Celery: [docs/celery/README.md](docs/celery/README.md). Затем автотесты на `library_test`: [docs/pytest/README.md](docs/pytest/README.md).
+
 ```bash
 # Linux
 ./scripts/init_postgres.sh

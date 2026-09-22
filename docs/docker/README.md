@@ -42,3 +42,5 @@
 | Alembic / сиды | при старте контейнера `app` |
 
 **Старт:** [step-01-install.md](step-01-install.md)
+
+Когда `app` и `db` поднимаются из Compose — очередь и воркер: [../celery/README.md](../celery/README.md).

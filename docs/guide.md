@@ -168,3 +168,19 @@ aiohttp_lesson/
 Когда API поднимается через `python -m app.main`, его вместе с PostgreSQL можно обернуть в контейнеры: не нужен ни локальный venv, ни Postgres на хосте.
 
 Карта и шаги: [docker/README.md](docker/README.md).
+
+---
+
+## 9. Дальше — Celery
+
+Когда в Compose уже есть `app` и `db`, тяжёлую работу (выгрузка каталога) выносим из запроса: Redis как брокер, отдельный воркер, `POST /exports` → `202`.
+
+Карта и шаги: [celery/README.md](celery/README.md).
+
+---
+
+## 10. Дальше — pytest
+
+Чеклисты `curl` из прошлых гайдов превращаем в тесты: отдельная Postgres `library_test`, Alembic, `TRUNCATE` между кейсами. Redis для тестов не нужен — экспорт гоняется в eager-режиме.
+
+Карта и шаги: [pytest/README.md](pytest/README.md).

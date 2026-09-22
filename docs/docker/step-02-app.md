@@ -589,3 +589,5 @@ docker compose ps
 ```
 
 Карта раздела: [README.md](README.md) · FastAPI: [../fastapi/README.md](../fastapi/README.md)
+
+**Дальше:** фоновый экспорт каталога (Redis + Celery в том же Compose) — [../celery/README.md](../celery/README.md).

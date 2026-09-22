@@ -147,7 +147,9 @@ aiohttp_lesson/
 └── docs/
     ├── remaining/            # первый гайд (aiohttp)
     ├── fastapi/              # этот гайд
-    └── docker/               # контейнеры
+    ├── docker/               # контейнеры
+    ├── celery/               # очередь после Docker
+    └── pytest/               # автотесты после Celery
 ```
 
 На фазе 1 папки `repositories/` ещё нет — не создавайте её заранее. `base.py` появляется только на шаге 5.

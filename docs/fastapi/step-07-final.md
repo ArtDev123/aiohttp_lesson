@@ -135,8 +135,8 @@ PATCH /books/{id}
 - Пагинация (`limit` / `offset`) — тоже метод потомка, не универсальный движок в `BaseRepository`.
 - Экранирование `%` / `_` в `ilike`, диапазон `year_from` / `year_to`.
 - Сервисный слой, если правила сложнее, чем «404 если FK нет».
-- `dependency_overrides[get_book_repository] = lambda: FakeBookRepo()` в pytest.
+- Интеграционные тесты на отдельной Postgres — гайд [../pytest/README.md](../pytest/README.md). Узкие юнит-тесты роута по-прежнему можно писать через `dependency_overrides`.
 
 Карта проекта: [guide.md](guide.md) · первый гайд: [../guide.md](../guide.md)
 
-**Дальше:** упаковать API и PostgreSQL в Docker — [../docker/README.md](../docker/README.md).
+**Дальше:** упаковать API и PostgreSQL в Docker — [../docker/README.md](../docker/README.md). Потом очередь — [../celery/README.md](../celery/README.md), потом тесты — [../pytest/README.md](../pytest/README.md).

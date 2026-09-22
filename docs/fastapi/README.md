@@ -55,4 +55,4 @@
 
 **Старт:** [step-01-setup.md](step-01-setup.md)
 
-Когда чеклист FastAPI закрыт — то же API в контейнерах: [../docker/README.md](../docker/README.md).
+Когда чеклист FastAPI закрыт — то же API в контейнерах: [../docker/README.md](../docker/README.md). После Docker — очередь: [../celery/README.md](../celery/README.md), затем тесты: [../pytest/README.md](../pytest/README.md).

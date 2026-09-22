@@ -74,3 +74,20 @@ class BookRead(BaseModel):
             author=book.author.name,
             genre=book.genre.name,
         )
+
+
+class BookFilters(BaseModel):
+    title: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=300,
+        description="Подстрока в названии, без учёта регистра",
+    )
+    year: int | None = Field(
+        default=None,
+        ge=1,
+        le=2100,
+        description="Точный год издания",
+    )
+    author_id: int | None = Field(default=None, ge=1)
+    genre_id: int | None = Field(default=None, ge=1)

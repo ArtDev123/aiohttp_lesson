@@ -21,8 +21,6 @@ async def list_genres(repo: GenreRepoDep) -> list[GenreRead]:
 )
 async def get_genre(genre_id: int, repo: GenreRepoDep) -> GenreRead:
     genre = await repo.get(genre_id)
-    if genre is None:
-        raise NotFoundError("Жанр не найден")
     return GenreRead.model_validate(genre)
 
 
@@ -45,6 +43,4 @@ async def patch_genre(
     genre_id: int, payload: GenreUpdate, repo: GenreRepoDep
 ) -> GenreRead:
     genre = await repo.update(genre_id, **payload.model_dump(exclude_unset=True))
-    if genre is None:
-        raise NotFoundError("Жанр не найден")
     return GenreRead.model_validate(genre)

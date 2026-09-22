@@ -1,15 +1,19 @@
-from fastapi import APIRouter, status
+from typing import Annotated
+
+from fastapi import APIRouter, status, Depends
 
 from app.deps import BookRepoDep
-from app.schemas import BookCreate, BookRead, BookUpdate, ErrorRead
-
+from app.schemas import BookCreate, BookRead, BookUpdate, ErrorRead, BookFilters
 
 router = APIRouter(prefix="/books", tags=["books"])
 
 
 @router.get("", response_model=list[BookRead])
-async def list_books(repo: BookRepoDep) -> list[BookRead]:
-    books = await repo.get_all()
+async def list_books(
+    repo: BookRepoDep,
+    filters: Annotated[BookFilters, Depends()],
+) -> list[BookRead]:
+    books = await repo.get_all(filters)
     return [BookRead.from_book(book) for book in books]
 
 

@@ -20,8 +20,6 @@ async def list_authors(repo: AuthorRepoDep) -> list[AuthorRead]:
 )
 async def get_author(author_id: int, repo: AuthorRepoDep) -> AuthorRead:
     author = await repo.get(author_id)
-    if author is None:
-        raise NotFoundError("Автор не найден")
     return AuthorRead.model_validate(author)
 
 
@@ -44,6 +42,4 @@ async def patch_author(
     author_id: int, payload: AuthorUpdate, repo: AuthorRepoDep
 ) -> AuthorRead:
     author = await repo.update(author_id, **payload.model_dump(exclude_unset=True))
-    if author is None:
-        raise NotFoundError("Автор не найден")
     return AuthorRead.model_validate(author)

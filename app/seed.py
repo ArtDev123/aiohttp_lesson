@@ -1,9 +1,12 @@
 import asyncio
 
-from sqlalchemy import select
+from sqlalchemy import func, insert, select
 
 from app.db import make_engine, make_session_factory
 from app.models import Author, Book, Genre
+
+TARGET_BOOKS = 20_000
+BATCH_SIZE = 1_000
 
 GENRES = ["фантастика", "детектив", "поэзия"]
 AUTHORS = [
@@ -11,7 +14,7 @@ AUTHORS = [
     {"name": "Агата Кристи", "bio": "Детективы"},
     {"name": "Анна Ахматова", "bio": "Поэт"},
 ]
-BOOKS = [
+NAMED_BOOKS = [
     {
         "title": "Пикник на обочине",
         "year": 1972,
@@ -37,35 +40,72 @@ async def seed() -> None:
     engine = make_engine()
     session_factory = make_session_factory(engine)
     async with session_factory() as session:
-        already = await session.scalar(select(Genre.id).limit(1))
-        if already is not None:
-            print("Сиды уже есть, пропускаем.")
+        genres = {
+            genre.name: genre
+            for genre in (await session.scalars(select(Genre))).all()
+        }
+        for name in GENRES:
+            if name not in genres:
+                genres[name] = Genre(name=name)
+                session.add(genres[name])
+
+        authors = {
+            author.name: author
+            for author in (await session.scalars(select(Author))).all()
+        }
+        for item in AUTHORS:
+            if item["name"] not in authors:
+                authors[item["name"]] = Author(name=item["name"], bio=item["bio"])
+                session.add(authors[item["name"]])
+
+        await session.flush()
+
+        book_count = await session.scalar(select(func.count()).select_from(Book)) or 0
+        if book_count >= TARGET_BOOKS:
+            print(f"Сиды уже есть ({book_count} книг), пропускаем.")
             await engine.dispose()
             return
 
-        genres = {name: Genre(name=name) for name in GENRES}
-        session.add_all(genres.values())
-
-        authors = {
-            item["name"]: Author(name=item["name"], bio=item["bio"])
-            for item in AUTHORS
-        }
-        session.add_all(authors.values())
-        await session.flush()
-
-        books = [
-            Book(
-                title=item["title"],
-                year=item["year"],
-                author_id=authors[item["author"]].id,
-                genre_id=genres[item["genre"]].id,
+        if book_count == 0:
+            session.add_all(
+                [
+                    Book(
+                        title=item["title"],
+                        year=item["year"],
+                        author_id=authors[item["author"]].id,
+                        genre_id=genres[item["genre"]].id,
+                    )
+                    for item in NAMED_BOOKS
+                ]
             )
-            for item in BOOKS
-        ]
-        session.add_all(books)
+            await session.flush()
+            book_count = len(NAMED_BOOKS)
+
+        author_ids = [authors[item["name"]].id for item in AUTHORS]
+        genre_ids = [genres[name].id for name in GENRES]
+        to_create = TARGET_BOOKS - book_count
+        batch: list[dict] = []
+
+        for n in range(book_count + 1, TARGET_BOOKS + 1):
+            batch.append(
+                {
+                    "title": f"Книга {n}",
+                    "year": 1900 + (n % 200),
+                    "author_id": author_ids[(n - 1) % len(author_ids)],
+                    "genre_id": genre_ids[(n - 1) % len(genre_ids)],
+                }
+            )
+            if len(batch) >= BATCH_SIZE:
+                await session.execute(insert(Book), batch)
+                batch.clear()
+
+        if batch:
+            await session.execute(insert(Book), batch)
+
         await session.commit()
         print(
-            f"Добавлено: {len(genres)} жанра, {len(authors)} автора, {len(books)} книги."
+            f"Добавлено: {len(genres)} жанра, {len(authors)} автора, "
+            f"{to_create} книг (всего {TARGET_BOOKS})."
         )
 
     await engine.dispose()

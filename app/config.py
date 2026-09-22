@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     app_host: str = "127.0.0.1"
     app_port: int = 8080
 
+    redis_url: str = "redis://localhost:6379/0"
+
     @property
     def database_url(self) -> str:
         password = quote_plus(self.postgres_password)

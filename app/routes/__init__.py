@@ -1,7 +1,7 @@
 from fastapi import APIRouter, FastAPI
 
 from app.db import SessionDep
-from app.routes import authors, books, genres
+from app.routes import authors, books, genres, exports
 
 
 def health_router() -> APIRouter:
@@ -19,3 +19,4 @@ def register_routes(app: FastAPI) -> None:
     app.include_router(genres.router)
     app.include_router(authors.router)
     app.include_router(books.router)
+    app.include_router(exports.router)

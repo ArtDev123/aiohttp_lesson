@@ -28,3 +28,5 @@ typing_extensions==4.16.0
 yarl==1.24.5
 fastapi>=0.115
 uvicorn[standard]>=0.32
+celery[redis]>=5.4
+redis>=5.0

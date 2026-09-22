@@ -91,3 +91,16 @@ class BookFilters(BaseModel):
     )
     author_id: int | None = Field(default=None, ge=1)
     genre_id: int | None = Field(default=None, ge=1)
+
+
+class ExportAccepted(BaseModel):
+    task_id: str
+    status: str
+
+
+class ExportStatus(BaseModel):
+    task_id: str
+    status: str
+    book_count: int | None = None
+    filename: str | None = None
+    error: str | None = None

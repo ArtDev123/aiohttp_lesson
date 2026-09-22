@@ -2,7 +2,9 @@ from collections.abc import AsyncGenerator
 from typing import Annotated
 
 from fastapi import Depends, Request
+from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import sessionmaker, Session
 
 from app.config import settings
 
@@ -22,3 +24,11 @@ async def get_session(request: Request) -> AsyncGenerator[AsyncSession, None]:
 
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
+
+
+def make_sync_engine():
+    return create_engine(settings.database_url_sync, echo=True)
+
+
+def make_sync_session_factory(engine) -> sessionmaker[Session]:
+    return sessionmaker(engine, expire_on_commit=False)

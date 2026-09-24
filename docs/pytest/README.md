@@ -50,3 +50,5 @@ Celery и `/exports` нужны на шаге 5. Шаги 1–4 от очере�
 | Celery eager | `delay()` выполняет задачу сразу, без брокера |
 
 **Старт:** [step-01-setup.md](step-01-setup.md)
+
+Когда REST уже отдаёт книги — автор и жанр объектами через GraphQL: [../graphql/README.md](../graphql/README.md). Очередь и эта тестовая база для того гайда не нужны.

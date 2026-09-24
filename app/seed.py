@@ -5,7 +5,7 @@ from sqlalchemy import func, insert, select
 from app.db import make_engine, make_session_factory
 from app.models import Author, Book, Genre
 
-TARGET_BOOKS = 20_000
+TARGET_BOOKS = 150_000
 BATCH_SIZE = 1_000
 
 GENRES = ["фантастика", "детектив", "поэзия"]
@@ -85,6 +85,7 @@ async def seed() -> None:
         genre_ids = [genres[name].id for name in GENRES]
         to_create = TARGET_BOOKS - book_count
         batch: list[dict] = []
+        added = 0
 
         for n in range(book_count + 1, TARGET_BOOKS + 1):
             batch.append(
@@ -97,7 +98,10 @@ async def seed() -> None:
             )
             if len(batch) >= BATCH_SIZE:
                 await session.execute(insert(Book), batch)
+                added += len(batch)
                 batch.clear()
+                if added % 10_000 == 0:
+                    print(f"  {book_count + added} / {TARGET_BOOKS}")
 
         if batch:
             await session.execute(insert(Book), batch)

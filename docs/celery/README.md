@@ -50,3 +50,5 @@
 **Старт:** [step-01-setup.md](step-01-setup.md)
 
 Когда чеклист Celery закрыт — автотесты того же API на отдельной `library_test`: [../pytest/README.md](../pytest/README.md).
+
+Тот же экспорт без опроса `GET` статуса — сокет с промежуточным `book_count`: [../websockets/README.md](../websockets/README.md).

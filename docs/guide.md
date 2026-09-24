@@ -184,3 +184,23 @@ aiohttp_lesson/
 Чеклисты `curl` из прошлых гайдов превращаем в тесты: отдельная Postgres `library_test`, Alembic, `TRUNCATE` между кейсами. Redis для тестов не нужен — экспорт гоняется в eager-режиме.
 
 Карта и шаги: [pytest/README.md](pytest/README.md).
+
+---
+
+## 11. Дальше — GraphQL
+
+`GET /books` отдаёт автора и жанр строками (только имена). Чтобы клиент сам собрал дерево — название, биография автора, имя жанра — добавляем `POST /graphql`. Таблицы и REST не меняются: тот же `BookRepository` с `selectinload`.
+
+Celery и pytest для этого не обязательны. Нужен рабочий FastAPI и репозиторий книг.
+
+Карта и шаги: [graphql/README.md](graphql/README.md).
+
+---
+
+## 12. Дальше — WebSocket
+
+`GET /exports/{task_id}` показывает `book_count` только в конце. На каталоге в 150 000 книг задача после каждой пачки пишет промежуточный счётчик в Redis, а `WS /exports/{task_id}/ws` шлёт его клиенту. Файл по-прежнему скачивается `GET`.
+
+Нужен рабочий Celery. GraphQL и pytest не обязательны.
+
+Карта и шаги: [websockets/README.md](websockets/README.md).

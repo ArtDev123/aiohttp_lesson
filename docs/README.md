@@ -12,6 +12,8 @@
 4. Когда API работает — [docker/](docker/README.md): Docker Desktop, контейнеры, Compose.
 5. Когда Compose поднимает `app` и `db` — [celery/](celery/README.md): очередь, Redis, фоновый экспорт каталога.
 6. Когда экспорт ходит через очередь — [pytest/](pytest/README.md): автотесты против отдельной `library_test`.
+7. Когда REST отдаёт книги — [graphql/](graphql/README.md): один `POST /graphql`, в ответе автор и жанр объектами.
+8. Когда экспорт уже в очереди — [websockets/](websockets/README.md): прогресс `book_count` по сокету, файл по-прежнему отдельным `GET`.
 
 Каждый технический блок устроен одинаково:
 
@@ -49,3 +51,7 @@ cd aiohttp_lesson
 Когда API поднимается локально — упаковать его вместе с PostgreSQL в Docker: [docker/README.md](docker/README.md).
 
 Когда контейнеры работают — фоновый экспорт на Celery: [celery/README.md](celery/README.md). Затем проверки без `curl` на тестовой Postgres: [pytest/README.md](pytest/README.md).
+
+Когда книги читаются через REST — GraphQL, чтобы забрать автора и жанр одним запросом: [graphql/README.md](graphql/README.md).
+
+Когда экспорт ходит через Celery — прогресс по WebSocket вместо опроса статуса: [websockets/README.md](websockets/README.md).

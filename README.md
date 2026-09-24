@@ -12,6 +12,10 @@
 
 После Docker — фоновый экспорт на Celery: [docs/celery/README.md](docs/celery/README.md). Затем автотесты на `library_test`: [docs/pytest/README.md](docs/pytest/README.md).
 
+Книга вместе с автором и жанром одним запросом — GraphQL: [docs/graphql/README.md](docs/graphql/README.md).
+
+Прогресс экспорта по WebSocket: [docs/websockets/README.md](docs/websockets/README.md).
+
 ```bash
 # Linux
 ./scripts/init_postgres.sh

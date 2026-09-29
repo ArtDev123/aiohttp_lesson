@@ -5,6 +5,8 @@ from sqlalchemy import func, insert, select
 from app.db import make_engine, make_session_factory
 from app.models import Author, Book, Genre
 
+print("test")
+
 TARGET_BOOKS = 150_000
 BATCH_SIZE = 1_000
 
